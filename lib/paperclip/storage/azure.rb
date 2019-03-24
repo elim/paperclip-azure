@@ -95,7 +95,7 @@ module Paperclip
             expiry:       (Time.now + time).utc.iso8601
           }
 
-          generator.signed_uri(uri, false, base_options.merge(azure_content_disposition))
+          generator.signed_uri(uri, false, base_options.merge(azure_content_disposition)).to_s
         else
           url(style_name)
         end
