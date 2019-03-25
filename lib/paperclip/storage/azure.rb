@@ -83,7 +83,7 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          uri = URI azure_uri(style_name)
+          path = "#{container_name}/#{path(style_name).gsub(%r{\A/}, '')}"
           generator = ::Azure::Storage::Core::Auth::SharedAccessSignature.new azure_account_name,
                                                                               azure_credentials[:storage_access_key]
 
@@ -95,7 +95,8 @@ module Paperclip
             expiry:       (Time.now + time).utc.iso8601
           }
 
-          generator.signed_uri(uri, false, base_options.merge(azure_content_disposition)).to_s
+          token = generator.generate_service_sas_token(path, base_options.merge(azure_content_disposition))
+          azure_interface.generate_uri(URI.encode(path), CGI::parse(token)).to_s
         else
           url(style_name)
         end
