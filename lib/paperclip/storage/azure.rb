@@ -96,7 +96,7 @@ module Paperclip
           }
 
           token = generator.generate_service_sas_token(path, base_options.merge(azure_content_disposition))
-          azure_interface.generate_uri(URI.encode(path), CGI::parse(token)).to_s
+          azure_interface.generate_uri(Addressable::URI.encode(path), CGI::parse(token)).to_s
         else
           url(style_name)
         end
