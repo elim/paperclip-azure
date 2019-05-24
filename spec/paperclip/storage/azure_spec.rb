@@ -172,7 +172,7 @@ describe Paperclip::Storage::Azure do
         end
       end
 
-      file = Paperclip.io_adapters.for(stringio)
+      file = Paperclip.io_adapters.for(stringio, hash_digest: Digest::MD5)
 
       @dummy = Dummy.new
       @dummy.avatar = file
