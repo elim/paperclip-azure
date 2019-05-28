@@ -22,10 +22,10 @@ Gem::Specification.new do |s|
   s.specification_version = 4
 
   s.add_runtime_dependency(%q<azure>.freeze, ["~> 0.7"])
-  s.add_runtime_dependency(%q<azure-storage>.freeze, ["~> 0.12"])
+  s.add_runtime_dependency(%q<azure-storage>.freeze, ["0.12.0.preview"])
   s.add_runtime_dependency(%q<hashie>.freeze, ["~> 3.5"])
   s.add_runtime_dependency(%q<addressable>.freeze, ["~> 2.5"])
-  s.add_development_dependency(%q<paperclip>.freeze, [">= 4.3.6"])
+  s.add_development_dependency(%q<paperclip>.freeze, ["~> 6.1.0"])
   s.add_development_dependency(%q<sqlite3>.freeze, ["~> 1.3.8"])
   s.add_development_dependency(%q<rspec>.freeze, ["~> 3.0"])
   s.add_development_dependency(%q<simplecov>.freeze, ["~> 0.14"])
