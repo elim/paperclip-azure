@@ -87,11 +87,15 @@ module Paperclip
           generator = ::Azure::Storage::Core::Auth::SharedAccessSignature.new azure_account_name,
                                                                               azure_credentials[:storage_access_key]
 
-          generator.signed_uri uri, false, service:      'b',
-                                           resource:     'b',
-                                           permissions:  'r',
-                                           start:        (Time.now - (5 * 60)).utc.iso8601,
-                                           expiry:       (Time.now + time).utc.iso8601
+          base_options = {
+            service:      'b',
+            resource:     'b',
+            permissions:  'r',
+            start:        (Time.now - (5 * 60)).utc.iso8601,
+            expiry:       (Time.now + time).utc.iso8601
+          }
+
+          generator.signed_uri(uri, false, base_options.merge(azure_content_disposition))
         else
           url(style_name)
         end
@@ -111,6 +115,12 @@ module Paperclip
         account_name = account_name.call(self) if account_name.is_a?(Proc)
 
         account_name
+      end
+
+      def azure_content_disposition
+        azure_content_disposition = @options[:azure_content_disposition]
+        azure_content_disposition = azure_content_disposition.call(instance) if azure_content_disposition.respond_to?(:call)
+        { content_disposition: azure_content_disposition } || {}
       end
 
       def container_name
