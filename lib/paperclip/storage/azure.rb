@@ -1,4 +1,4 @@
-require 'azure/storage'
+require 'azure/storage/blob'
 require 'paperclip/storage/azure/environment'
 
 module Paperclip
@@ -84,7 +84,7 @@ module Paperclip
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
           path = "#{container_name}/#{path(style_name).gsub(%r{\A/}, '')}"
-          generator = ::Azure::Storage::Core::Auth::SharedAccessSignature.new azure_account_name,
+          generator = ::Azure::Storage::Common::Core::Auth::SharedAccessSignature.new azure_account_name,
                                                                               azure_credentials[:storage_access_key]
 
           base_options = {
@@ -149,7 +149,7 @@ module Paperclip
           config[opt] = azure_credentials[opt] if azure_credentials[opt]
         end
 
-        @azure_storage_client ||= ::Azure::Storage::Client.create config
+        @azure_storage_client ||= ::Azure::Storage::Common::Client.new(config)
       end
 
       def obtain_azure_instance_for(options)
@@ -157,7 +157,7 @@ module Paperclip
         return instances[options] if instance[options]
 
         service = ::Azure::Storage::Blob::BlobService.new(client: azure_storage_client)
-        service.with_filter ::Azure::Storage::Core::Filter::ExponentialRetryPolicyFilter.new
+        service.with_filter ::Azure::Storage::Common::Core::Filter::ExponentialRetryPolicyFilter.new
 
         instances[options] = service
       end
@@ -232,21 +232,7 @@ module Paperclip
       end
 
       def save_blob(container_name, storage_path, file, write_options)
-
-        if file.size < 64.megabytes
-          azure_interface.create_block_blob container_name, storage_path, file.read, write_options
-        else
-          blocks = []; count = 0
-          while data = file.read(4.megabytes)
-            block_id = "block_#{(count += 1).to_s.rjust(5, '0')}"
-
-            azure_interface.create_blob_block container_name, storage_path, block_id, data
-
-            blocks << [block_id]
-          end
-
-          azure_interface.commit_blob_blocks container_name, storage_path, blocks
-        end
+        azure_interface.create_block_blob container_name, storage_path, file.read, write_options
       end
 
       def flush_deletes #:nodoc:
